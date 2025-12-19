@@ -8,5 +8,7 @@
     "**/.DS_Store": true,
     "**/Thumbs.db": true,
     "**/node_modules": false
-  }
+  },
+  "terraform.languageServer.enable": false,
+  "yaml.validate": false
 }
