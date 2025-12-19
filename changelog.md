@@ -1,5 +1,14 @@
 # Changelog
 
+## [1.3.10](https://github.com/ehmpathy/with-remote-state-cache/compare/v1.3.9...v1.3.10) (2025-12-19)
+
+
+### Bug Fixes
+
+* **cicd:** unblock cicd after rename of repo ([9f35326](https://github.com/ehmpathy/with-remote-state-cache/commit/9f35326a3a4b6e8203495a684705ecbeab491823))
+* **deps:** upgrade to latest with-simple-cache lib ([#18](https://github.com/ehmpathy/with-remote-state-cache/issues/18)) ([d7ce1ab](https://github.com/ehmpathy/with-remote-state-cache/commit/d7ce1abbb474168d7637c38bf318b91de919f907))
+* **practs:** deworm and bump to latest best ([#19](https://github.com/ehmpathy/with-remote-state-cache/issues/19)) ([10fb8d1](https://github.com/ehmpathy/with-remote-state-cache/commit/10fb8d1d2fb2de6b7fe85ac8dbe36a57cdeec0ae))
+
 ## [1.3.9](https://github.com/ehmpathy/with-remote-state-caching/compare/v1.3.8...v1.3.9) (2024-08-04)
 
 
