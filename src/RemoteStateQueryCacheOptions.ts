@@ -1,6 +1,6 @@
-import { WithSimpleCachingOptions } from 'with-simple-caching';
+import { WithSimpleCacheOptions } from 'with-simple-cache';
 
-import { MutationWithRemoteStateRegistration } from './createRemoteStateCachingContext';
+import { MutationWithRemoteStateRegistration } from './createRemoteStateCacheContext';
 
 export enum MutationExecutionStatus {
   /**
@@ -123,7 +123,7 @@ export interface RemoteStateQueryUpdateTrigger<
  * - user to specify cache invalidations of the query triggered by mutations
  * - user to specify cache updates of the query, triggered by mutations
  */
-export interface WithRemoteStateQueryCachingOptions<
+export interface WithRemoteStateQueryCacheOptions<
   Q extends (...args: any) => any,
 > {
   /**
@@ -145,11 +145,11 @@ export interface WithRemoteStateQueryCachingOptions<
   updatedBy: RemoteStateQueryUpdateTrigger<Q, any>[];
 
   /**
-   * the options passed to WithSimpleCaching for deserialization
+   * the options passed to WithSimpleCache for deserialization
    *
    * note
    * - this is just a reference to the function the user defined
    * - we use this to be able to deserialize the value before letting the user update it in the updatedBy trigger
    */
-  deserialize: Required<WithSimpleCachingOptions<Q, any>>['deserialize'];
+  deserialize: Required<WithSimpleCacheOptions<Q, any>>['deserialize'];
 }

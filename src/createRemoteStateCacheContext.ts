@@ -1,13 +1,13 @@
 import { BadRequestError } from '@ehmpathy/error-fns';
 import { isAFunction, PickOne } from 'type-fns';
 import {
-  WithSimpleCachingOptions,
-  LogicWithExtendableCachingAsync,
-  withExtendableCachingAsync,
+  WithSimpleCacheOptions,
+  LogicWithExtendableCacheAsync,
+  withExtendableCacheAsync,
   KeySerializationMethod,
-  WithSimpleCachingCacheOption,
-  WithSimpleCachingAsyncOptions,
-} from 'with-simple-caching';
+  WithSimpleCacheChoice,
+  WithSimpleCacheAsyncOptions,
+} from 'with-simple-cache';
 
 import { RemoteStateCache } from './RemoteStateCache';
 import {
@@ -18,14 +18,14 @@ import {
   MutationExecutionStatus,
   RemoteStateQueryInvalidationTrigger,
   RemoteStateQueryUpdateTrigger,
-} from './RemoteStateQueryCachingOptions';
+} from './RemoteStateQueryCacheOptions';
 import {
   defaultKeySerializationMethod,
   defaultValueDeserializationMethod,
   defaultValueSerializationMethod,
 } from './defaults';
 
-interface WithRemoteStateCachingOptions {
+interface WithRemoteStateCacheOptions {
   /**
    * a manually specified name, to be used if the function does not have a name defined of its own
    *
@@ -66,7 +66,7 @@ export const extractNameFromRegistrationInputs = ({
 }: {
   operation: RemoteStateOperation;
   logic: (...args: any) => any;
-  options: WithRemoteStateCachingOptions;
+  options: WithRemoteStateCacheOptions;
 }) => {
   // define the name
   const nameFromFunctionReference = logic.name;
@@ -82,7 +82,7 @@ export const extractNameFromRegistrationInputs = ({
     nameFromExplicitOptions !== nameFromFunctionReference
   )
     throw new BadRequestError(
-      `a ${operation.toLowerCase()} was attempted to be registered to remote-state caching with a name explicitly defined which differed from the name property of the wrapped logic function reference. this is ambiguous, so we do not allow this.
+      `a ${operation.toLowerCase()} was attempted to be registered to the remote-state cache with a name explicitly defined which differed from the name property of the wrapped logic function reference. this is ambiguous, so we do not allow this.
 
 if you are sure you want to override the given name of the function, set 'name: { override: "${nameFromExplicitOptions}" }' instead`,
       {
@@ -113,7 +113,7 @@ if you are sure you want to override the given name of the function, set 'name: 
  * - triggers can not be defined through wrapper options with full type information, as typescript is not able to infer both the query type and the mutation type at the same time
  * - this method gives us the type information both the query and mutation, making it a lot more convinient to define
  */
-export type QueryWithRemoteStateCachingAddTriggerMethod<
+export type QueryWithRemoteStateCacheAddTriggerMethod<
   Q extends (...args: any[]) => any,
 > = <M extends (...args: any[]) => any>(
   args: PickOne<{
@@ -123,12 +123,12 @@ export type QueryWithRemoteStateCachingAddTriggerMethod<
 ) => void;
 
 /**
- * the shape of a query extended with remote state caching
+ * the shape of a query extended with remote state cache
  */
-export interface QueryWithRemoteStateCaching<
+export interface QueryWithRemoteStateCache<
   L extends (...args: any) => any,
   C extends RemoteStateCache,
-> extends LogicWithExtendableCachingAsync<L, C> {
+> extends LogicWithExtendableCacheAsync<L, C> {
   /**
    * the registered name of this query
    */
@@ -141,7 +141,7 @@ export interface QueryWithRemoteStateCaching<
    * - triggers can not be defined through wrapper options, as typescript is not able to infer both the query type and the mutation type at the same time
    * - this method gives us both, by leveraging the factory pattern
    */
-  addTrigger: QueryWithRemoteStateCachingAddTriggerMethod<L>;
+  addTrigger: QueryWithRemoteStateCacheAddTriggerMethod<L>;
 }
 
 /**
@@ -162,12 +162,12 @@ export interface MutationWithRemoteStateRegistration<
 }
 
 /**
- * this method sets up remote0state caching for an application
- * - instantiates a remote-state caching context to register all queries and mutations to
- * - creates the wrapper functions used to leverage the cache within the remote-state caching context
+ * this method sets up the remote-state cache for an application
+ * - instantiates a remote-state cache context to register all queries and mutations to
+ * - creates the wrapper functions used to leverage the cache within the remote-state cache context
  * - manages tracking and triggering interactions between queries and mutations (invalidations, updates, etc)
  */
-export const createRemoteStateCachingContext = <
+export const createRemoteStateCacheContext = <
   /**
    * specifies the inputs common across all methods, which may be used to extract the cache at runtime, if relevant
    */
@@ -183,7 +183,7 @@ export const createRemoteStateCachingContext = <
   /**
    * specify the cache to use across operations in this remote-state cache context
    */
-  cache: WithSimpleCachingCacheOption<SLI, C>;
+  cache: WithSimpleCacheChoice<SLI, C>;
 
   /**
    * allow specifying default serialization options
@@ -197,9 +197,7 @@ export const createRemoteStateCachingContext = <
     /**
      * allow specifying a default value serialization method
      */
-    value?: Required<
-      WithSimpleCachingAsyncOptions<any, C>
-    >['serialize']['value'];
+    value?: Required<WithSimpleCacheAsyncOptions<any, C>>['serialize']['value'];
   };
 
   /**
@@ -210,7 +208,7 @@ export const createRemoteStateCachingContext = <
      * allow specifying a default value deserialization method
      */
     value?: Required<
-      WithSimpleCachingAsyncOptions<any, C>
+      WithSimpleCacheAsyncOptions<any, C>
     >['deserialize']['value'];
   };
 }) => {
@@ -246,21 +244,21 @@ export const createRemoteStateCachingContext = <
   };
 
   /**
-   * a wrapper which adds remote-state caching to a query
+   * a wrapper which adds remote-state cache to a query
    *
    * enables
-   * - caching the response of any query
-   * - automatically invalidating or updating the cached response for a query, triggered by mutations
-   * - manually invalidating or updating the cached response for a query
+   * - cache the response of any query
+   * - automatically invalidate or update the cached response for a query, triggered by mutations
+   * - manually invalidate or update the cached response for a query
    */
-  const withRemoteStateQueryCaching = <
+  const withRemoteStateQueryCache = <
     LI extends SLI,
     L extends (...args: LI) => Promise<any>,
   >(
     logic: L,
-    options: Omit<WithSimpleCachingOptions<L, C>, 'cache'> &
-      WithRemoteStateCachingOptions,
-  ): QueryWithRemoteStateCaching<L, C> => {
+    options: Omit<WithSimpleCacheOptions<L, C>, 'cache'> &
+      WithRemoteStateCacheOptions,
+  ): QueryWithRemoteStateCache<L, C> => {
     // grab the name of this query
     const name = extractNameFromRegistrationInputs({
       operation: RemoteStateOperation.QUERY,
@@ -291,7 +289,7 @@ export const createRemoteStateCachingContext = <
       defaultValueDeserializationMethod;
 
     // extend the logic with caching
-    const logicExtendedWithCaching = withExtendableCachingAsync(logic, {
+    const logicExtendedWithCache = withExtendableCacheAsync(logic, {
       ...options,
       serialize: {
         key: keySerializationMethodWithNamespace,
@@ -306,7 +304,7 @@ export const createRemoteStateCachingContext = <
     // register this query
     const registration: RemoteStateCacheContextQueryRegistration<L, C> = {
       name,
-      query: logicExtendedWithCaching,
+      query: logicExtendedWithCache,
       options: {
         invalidatedBy: [],
         updatedBy: [],
@@ -316,7 +314,7 @@ export const createRemoteStateCachingContext = <
     registerQueryToRemoteStateContext({ registration });
 
     // define a method the user can use to add triggers (since defining them on inputs does not give good type safety)
-    const addTrigger: QueryWithRemoteStateCachingAddTriggerMethod<L> = <
+    const addTrigger: QueryWithRemoteStateCacheAddTriggerMethod<L> = <
       M extends (...args: any[]) => any,
     >({
       invalidatedBy,
@@ -330,7 +328,7 @@ export const createRemoteStateCachingContext = <
     };
 
     // and return the extended logic
-    return { ...logicExtendedWithCaching, addTrigger, name: registration.name };
+    return { ...logicExtendedWithCache, addTrigger, name: registration.name };
   };
 
   /**
@@ -400,8 +398,8 @@ export const createRemoteStateCachingContext = <
         if (!invalidatedByThisMutationDefinition) return;
 
         // grab the cached query keys for this query
-        const cachedQueryKeys = (await mutationCache.keys()).filter((key) =>
-          key.startsWith(registration.name),
+        const cachedQueryKeys = (await mutationCache.keys()).filter(
+          (key: string) => key.startsWith(registration.name),
         ); // keys are namespaced by query name
 
         // otherwise, define what to invalidate
@@ -442,8 +440,8 @@ export const createRemoteStateCachingContext = <
         if (!updatedByThisMutationDefinition) return;
 
         // grab the cached query keys for this query
-        const cachedQueryKeys = (await mutationCache.keys()).filter((key) =>
-          key.startsWith(registration.name),
+        const cachedQueryKeys = (await mutationCache.keys()).filter(
+          (key: string) => key.startsWith(registration.name),
         ); // keys are namespaced by query name
 
         // otherwise, define what to update
@@ -493,7 +491,7 @@ export const createRemoteStateCachingContext = <
   };
 
   /**
-   * a wrapper which registers a mutation into the remote-state caching context, without adding caching to the mutation
+   * a wrapper which registers a mutation into the remote-state cache context, without adding cache to the mutation
    *
    * relevance
    * - this enables the mutation to trigger invalidation and updates of queries
@@ -502,7 +500,7 @@ export const createRemoteStateCachingContext = <
     L extends (...args: any[]) => any,
   >(
     logic: L,
-    options: WithRemoteStateCachingOptions,
+    options: WithRemoteStateCacheOptions,
   ): MutationWithRemoteStateRegistration<L> => {
     // define the mutation name
     const mutationName = extractNameFromRegistrationInputs({
@@ -557,7 +555,7 @@ export const createRemoteStateCachingContext = <
    * return the wrappers
    */
   return {
-    withRemoteStateQueryCaching,
+    withRemoteStateQueryCache,
     withRemoteStateMutationRegistration,
   };
 };

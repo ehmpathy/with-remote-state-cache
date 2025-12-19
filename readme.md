@@ -1,9 +1,9 @@
-# with-remote-state-caching
+# with-remote-state-cache
 
-![ci_on_commit](https://github.com/ehmpathy/with-remote-state-caching/workflows/ci_on_commit/badge.svg)
-![deploy_on_tag](https://github.com/ehmpathy/with-remote-state-caching/workflows/deploy_on_tag/badge.svg)
+![ci_on_commit](https://github.com/ehmpathy/with-remote-state-cache/workflows/ci_on_commit/badge.svg)
+![deploy_on_tag](https://github.com/ehmpathy/with-remote-state-cache/workflows/deploy_on_tag/badge.svg)
 
-Easily add powerful, declarative, and intuitive caching over remote-state resources to maximize performance without loosing accuracy.
+Easily add powerful, declarative, and intuitive cache over remote-state resources to maximize performance without loosing accuracy.
 
 Notable features:
 
@@ -11,12 +11,12 @@ Notable features:
 - Declarative cache invalidation, updates, and optimistic updates
 - Customizable cache data store (localstorage, s3, dynamodb, on-disk, etc)
 - Wrapper pattern for simple and clean usage
-- Built off of battle-tested [with-simple-caching](https://github.com/ehmpathy/with-simple-caching)
+- Built off of battle-tested [with-simple-cache](https://github.com/ehmpathy/with-simple-cache)
 
 # Install
 
 ```sh
-npm install --save with-remote-state-caching
+npm install --save with-remote-state-cache
 ```
 
 # Examples
@@ -44,7 +44,7 @@ type Recipe = {
 To let users search recipes, you'll probably have a function that looks something like this:
 ```ts
 /**
- * a function which calls the remote-state api and looks up recipes, without caching
+ * a function which calls the remote-state api and looks up recipes, without cache
  */
 const getRecipes = ({ searchFor }: { searchFor: string }): Promise<Recipe[]> => {
   // ...
@@ -61,29 +61,29 @@ const saveRecipe = ({ recipe }: { recipe: Recipe }): Promise<Required<Recipe>> =
 }
 ```
 
-### Setup remote-state caching
+### Setup remote-state cache
 
-Before being able to use remote-state caching, we'll need to set up a remote-state caching context within which the queries and mutations will be registered
+Before being able to use remote-state cache, we'll need to set up a remote-state cache context within which the queries and mutations will be registered
 
-This is the glue that provides the additional information, i.e., the context, needed for the remote-state caching to power the internal cache interactions which make it so useful.
+This is the glue that provides the additional information, i.e., the context, needed for the remote-state cache to power the internal cache interactions which make it so useful.
 
 Let's get started
 
 ```ts
-import { setupRemoteStateCaching } from 'with-remote-state-caching';
+import { setupRemoteStateCache } from 'with-remote-state-cache';
 import { createCache } from 'simple-localstorage-cache';
 
 // creates a shared context that all registered queries and mutations will be able to interact within
-const { withRemoteStateQueryCaching, withRemoteStateMutationRegistration } = createRemoteStateCachingContext({
+const { withRemoteStateQueryCache, withRemoteStateMutationRegistration } = createRemoteStateCacheContext({
   cache: createCache({ namespace: 'recipes-api' }), // creates a localstorage cache, namespaced by this key, to use for all operations
 })
 ```
 
 
-note, in this particular example we're using [simple-localstorage-cache](https://github.com/ehmpathy/simple-localstorage-cache), but you can use any async cache which works with [with-simple-caching](https://github.com/ehmpathy/with-simple-caching), for example
-- [simple-on-disk-caching](https://github.com/ehmpathy/simple-on-disk-cache) for s3 and mounted persistance
-- [simple-dynamodb-caching](https://github.com/ehmpathy/simple-dynamodb-cache) for dynamodb persistance
-- [simple-localstorage-caching](https://github.com/ehmpathy/simple-localstorage-cache) for browser localstorage persistance
+note, in this particular example we're using [simple-localstorage-cache](https://github.com/ehmpathy/simple-localstorage-cache), but you can use any async cache which works with [with-simple-cache](https://github.com/ehmpathy/with-simple-cache), for example
+- [simple-on-disk-cache](https://github.com/ehmpathy/simple-on-disk-cache) for s3 and mounted persistance
+- [simple-dynamodb-cache](https://github.com/ehmpathy/simple-dynamodb-cache) for dynamodb persistance
+- [simple-localstorage-cache](https://github.com/ehmpathy/simple-localstorage-cache) for browser localstorage persistance
 - etc
 
 
@@ -93,10 +93,10 @@ Lets add a cache on top of your query, so that subsequent calls resolve instantl
 
 ```ts
 import { createCache } from 'simple-localstorage-cache';
-import { withRemoteStateQueryCaching } from 'with-remote-state-caching';
+import { withRemoteStateQueryCache } from 'with-remote-state-cache';
 
-// add remote-state caching to the query `getRecipesFromApi`
-const queryGetRecipes = withRemoteStateQueryCaching(getRecipes) });
+// add remote-state cache to the query `getRecipesFromApi`
+const queryGetRecipes = withRemoteStateQueryCache(getRecipes) });
 
 // now, when you execute that query, the result will be cached
 await queryGetRecipes.execute({ searchFor: 'chocolate' }); // calls api
@@ -147,9 +147,9 @@ Oh boy can we 😄
 
 Not only can we trigger the invalidation automatically, but we can also narrow the invalidation to the specific set of cache keys that were affected.
 
-First, we must first register the `mutation` with our remote-state caching system, so that it can detect when the mutation is called. This is easy to do:
+First, we must first register the `mutation` with our remote-state cache system, so that it can detect when the mutation is called. This is easy to do:
 ```ts
-// registers the mutation with our remote-state caching system, does not apply any caching to it
+// registers the mutation with our remote-state cache system, does not apply any cache to it
 const mutationSaveRecipe = withRemoteStateMutationRegistration(saveRecipe);
 ```
 
@@ -201,8 +201,8 @@ queryGetRecipes.addTrigger({
 
 # Upcoming Features
 
-- domain-object reference caching
-- mutation optimistic-response caching, resolution, and triggered updates
+- domain-object reference cache
+- mutation optimistic-response cache, resolution, and triggered updates
 - remote-state update event subscriptions
 
 

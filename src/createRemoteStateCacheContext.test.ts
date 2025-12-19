@@ -2,10 +2,10 @@ import { promises as fs } from 'fs';
 import { createCache as createOnDiskCache } from 'simple-on-disk-cache';
 import { HasMetadata } from 'type-fns';
 import uuid from 'uuid';
-import { SimpleCache } from 'with-simple-caching';
+import { SimpleCache } from 'with-simple-cache';
 
 import { RemoteStateCache } from './RemoteStateCache';
-import { createRemoteStateCachingContext } from './createRemoteStateCachingContext';
+import { createRemoteStateCacheContext } from './createRemoteStateCacheContext';
 import { defaultKeySerializationMethod } from './defaults';
 
 /**
@@ -22,30 +22,30 @@ type Recipe = {
 const cacheDir = `${__dirname}/__test_assets__/__tmp__`;
 const createCache = () =>
   createOnDiskCache({
-    directoryToPersistTo: {
+    directory: {
       mounted: {
         path: cacheDir,
       },
     },
   });
 
-describe('createRemoteStateCachingContext', () => {
+describe('createRemoteStateCacheContext', () => {
   beforeEach(() =>
     // invalidate all of the current cached data, so past tests dont interfere
     fs
       .unlink([cacheDir, '_.simple_on_disk_cache.valid_keys'].join('/'))
       .catch(() => {}),
   );
-  describe('caching', () => {
-    it('should be possible to add extended caching to a query', async () => {
+  describe('cache', () => {
+    it('should be possible to add extended cache to a query', async () => {
       // start the context
-      const { withRemoteStateQueryCaching } = createRemoteStateCachingContext({
+      const { withRemoteStateQueryCache } = createRemoteStateCacheContext({
         cache: createCache(),
       });
 
-      // define a query that we'll be caching
+      // define a query that we'll add cache to
       const apiCalls = [];
-      const queryGetRecipes = withRemoteStateQueryCaching(
+      const queryGetRecipes = withRemoteStateQueryCache(
         async ({ searchFor }: { searchFor: string }): Promise<Recipe[]> => {
           apiCalls.push(searchFor);
           return [
@@ -88,9 +88,7 @@ describe('createRemoteStateCachingContext', () => {
       await queryGetRecipes.update({
         forKey: [
           queryGetRecipes.name,
-          defaultKeySerializationMethod({
-            forInput: [{ searchFor: 'smoothie' }],
-          }),
+          defaultKeySerializationMethod({ searchFor: 'smoothie' }, undefined),
         ].join('.'), // update by key, instead of input
         toValue: async ({ fromCachedOutput }) => [
           ...(fromCachedOutput ?? []),
@@ -113,17 +111,16 @@ describe('createRemoteStateCachingContext', () => {
     it('should use the context level key serialization method as default when specified', async () => {
       // start the context
       const cache = createCache();
-      const { withRemoteStateQueryCaching } = createRemoteStateCachingContext({
+      const { withRemoteStateQueryCache } = createRemoteStateCacheContext({
         cache,
         serialize: {
-          key: ({ forInput }) =>
-            ['for', ...Object.values(forInput[0])].join('.'), // add a default serialization method
+          key: (input, _context) => ['for', ...Object.values(input)].join('.'), // add a default serialization method
         },
       });
 
-      // define a query that we'll be caching
+      // define a query that we'll add cache to
       const apiCalls = [];
-      const queryGetRecipes = withRemoteStateQueryCaching(
+      const queryGetRecipes = withRemoteStateQueryCache(
         async ({ searchFor }: { searchFor: string }): Promise<Recipe[]> => {
           apiCalls.push(searchFor);
           return [
@@ -157,10 +154,8 @@ describe('createRemoteStateCachingContext', () => {
   describe('triggers', () => {
     it('should be possible to automatically invalidate and update a query cache from mutations', async () => {
       // start the context
-      const {
-        withRemoteStateQueryCaching,
-        withRemoteStateMutationRegistration,
-      } = createRemoteStateCachingContext({ cache: createCache() });
+      const { withRemoteStateQueryCache, withRemoteStateMutationRegistration } =
+        createRemoteStateCacheContext({ cache: createCache() });
 
       // define a mutation which we'll have as a trigger for cache invalidation
       const mutationAddRecipe = withRemoteStateMutationRegistration(
@@ -176,9 +171,9 @@ describe('createRemoteStateCachingContext', () => {
         },
       );
 
-      // define a query that we'll be caching
+      // define a query that we'll add cache to
       const apiCalls = [];
-      const queryGetRecipes = withRemoteStateQueryCaching(
+      const queryGetRecipes = withRemoteStateQueryCache(
         async ({
           searchFor,
         }: {
@@ -264,12 +259,10 @@ describe('createRemoteStateCachingContext', () => {
     });
     it('should be possible to invalidate and update a query cache from mutation, when cache is pulled from input at runtime', async () => {
       // start the context
-      const {
-        withRemoteStateQueryCaching,
-        withRemoteStateMutationRegistration,
-      } = createRemoteStateCachingContext({
-        cache: ({ fromInput }) => fromInput[1].cache,
-      });
+      const { withRemoteStateQueryCache, withRemoteStateMutationRegistration } =
+        createRemoteStateCacheContext({
+          cache: ({ fromInput }) => fromInput[1].cache,
+        });
 
       // define a mutation which we'll have as a trigger for cache invalidation
       const mutationAddRecipe = withRemoteStateMutationRegistration(
@@ -293,9 +286,9 @@ describe('createRemoteStateCachingContext', () => {
         },
       );
 
-      // define a query that we'll be caching
+      // define a query that we'll add cache to
       const apiCalls = [];
-      const queryGetRecipes = withRemoteStateQueryCaching(
+      const queryGetRecipes = withRemoteStateQueryCache(
         async (
           { searchFor }: { searchFor: string },
           _: { cache: RemoteStateCache },
@@ -410,10 +403,8 @@ describe('createRemoteStateCachingContext', () => {
     });
     it('should still trigger invalidations and updates if the mutation threw an error', async () => {
       // start the context
-      const {
-        withRemoteStateQueryCaching,
-        withRemoteStateMutationRegistration,
-      } = createRemoteStateCachingContext({ cache: createCache() });
+      const { withRemoteStateQueryCache, withRemoteStateMutationRegistration } =
+        createRemoteStateCacheContext({ cache: createCache() });
 
       // define a mutation which we'll have as a trigger for cache invalidation
       const mutationAddRecipe = withRemoteStateMutationRegistration(
@@ -433,9 +424,9 @@ describe('createRemoteStateCachingContext', () => {
         },
       );
 
-      // define a query that we'll be caching
+      // define a query that we'll add cache to
       const apiCalls = [];
-      const queryGetRecipes = withRemoteStateQueryCaching(
+      const queryGetRecipes = withRemoteStateQueryCache(
         async ({
           searchFor,
         }: {
@@ -553,18 +544,16 @@ describe('createRemoteStateCachingContext', () => {
       apiCalls: any[];
     }) => {
       // start the context
-      const {
-        withRemoteStateQueryCaching,
-        withRemoteStateMutationRegistration,
-      } = createRemoteStateCachingContext({
-        cache: ({ fromInput }) => fromInput[1].cache,
-      });
+      const { withRemoteStateQueryCache, withRemoteStateMutationRegistration } =
+        createRemoteStateCacheContext({
+          cache: ({ fromInput }) => fromInput[1].cache,
+        });
 
       // define a mutation which we'll have as a trigger for cache invalidation
       const mutationAddRecipe = withRemoteStateMutationRegistration(
         async (
           { recipe }: { recipe: Recipe },
-          _: { cache: SimpleCache<any> },
+          _: { cache: RemoteStateCache },
         ) => recipe,
         {
           name: 'mutationAddRecipe',
@@ -582,8 +571,8 @@ describe('createRemoteStateCachingContext', () => {
         },
       );
 
-      // define a query that we'll be caching
-      const queryGetRecipes = withRemoteStateQueryCaching(
+      // define a query that we'll add cache to
+      const queryGetRecipes = withRemoteStateQueryCache(
         async (
           { searchFor }: { searchFor: string },
           _: { cache: SimpleCache<any> },
@@ -724,7 +713,7 @@ describe('createRemoteStateCachingContext', () => {
   describe('(de)serialization', () => {
     it('should allow user to specify default context level serialization and deserialization', async () => {
       // start the context
-      const { withRemoteStateQueryCaching } = createRemoteStateCachingContext({
+      const { withRemoteStateQueryCache } = createRemoteStateCacheContext({
         cache: createCache(),
         serialize: {
           value: (output) => JSON.stringify(output),
@@ -734,9 +723,9 @@ describe('createRemoteStateCachingContext', () => {
         },
       });
 
-      // define a query that we'll be caching
+      // define a query that we'll add cache to
       const apiCalls = [];
-      const queryGetRecipes = withRemoteStateQueryCaching(
+      const queryGetRecipes = withRemoteStateQueryCache(
         async ({ searchFor }: { searchFor: string }): Promise<Recipe[]> => {
           apiCalls.push(searchFor);
           return [
@@ -779,9 +768,7 @@ describe('createRemoteStateCachingContext', () => {
       await queryGetRecipes.update({
         forKey: [
           queryGetRecipes.name,
-          defaultKeySerializationMethod({
-            forInput: [{ searchFor: 'smoothie' }],
-          }),
+          defaultKeySerializationMethod({ searchFor: 'smoothie' }, undefined),
         ].join('.'), // update by key, instead of input
         toValue: async ({ fromCachedOutput }) => [
           ...((await fromCachedOutput) ?? []),

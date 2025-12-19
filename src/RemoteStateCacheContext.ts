@@ -1,7 +1,7 @@
-import { LogicWithExtendableCachingAsync } from 'with-simple-caching';
+import { LogicWithExtendableCacheAsync } from 'with-simple-cache';
 
 import { RemoteStateCache } from '.';
-import { WithRemoteStateQueryCachingOptions } from './RemoteStateQueryCachingOptions';
+import { WithRemoteStateQueryCacheOptions } from './RemoteStateQueryCacheOptions';
 
 /**
  * tracks all of the info required for managing the remote-state cache for a query
@@ -23,12 +23,12 @@ export interface RemoteStateCacheContextQueryRegistration<
   /**
    * the query with extended caching which can be used
    */
-  query: LogicWithExtendableCachingAsync<L, C>;
+  query: LogicWithExtendableCacheAsync<L, C>;
 
   /**
-   * the remote-state caching options this query was registered with
+   * the remote-state cache options this query was registered with
    */
-  options: WithRemoteStateQueryCachingOptions<L>;
+  options: WithRemoteStateQueryCacheOptions<L>;
 }
 
 /**
