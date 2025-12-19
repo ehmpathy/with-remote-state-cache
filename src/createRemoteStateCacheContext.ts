@@ -1,29 +1,29 @@
-import { BadRequestError } from '@ehmpathy/error-fns';
-import { isAFunction, PickOne } from 'type-fns';
+import { BadRequestError } from 'helpful-errors';
+import { isAFunction, type PickOne } from 'type-fns';
 import {
-  WithSimpleCacheOptions,
-  LogicWithExtendableCacheAsync,
+  type KeySerializationMethod,
+  type LogicWithExtendableCacheAsync,
+  type WithSimpleCacheAsyncOptions,
+  type WithSimpleCacheChoice,
+  type WithSimpleCacheOptions,
   withExtendableCacheAsync,
-  KeySerializationMethod,
-  WithSimpleCacheChoice,
-  WithSimpleCacheAsyncOptions,
 } from 'with-simple-cache';
 
-import { RemoteStateCache } from './RemoteStateCache';
-import {
-  RemoteStateCacheContext,
-  RemoteStateCacheContextQueryRegistration,
-} from './RemoteStateCacheContext';
-import {
-  MutationExecutionStatus,
-  RemoteStateQueryInvalidationTrigger,
-  RemoteStateQueryUpdateTrigger,
-} from './RemoteStateQueryCacheOptions';
 import {
   defaultKeySerializationMethod,
   defaultValueDeserializationMethod,
   defaultValueSerializationMethod,
 } from './defaults';
+import type { RemoteStateCache } from './RemoteStateCache';
+import type {
+  RemoteStateCacheContext,
+  RemoteStateCacheContextQueryRegistration,
+} from './RemoteStateCacheContext';
+import {
+  MutationExecutionStatus,
+  type RemoteStateQueryInvalidationTrigger,
+  type RemoteStateQueryUpdateTrigger,
+} from './RemoteStateQueryCacheOptions';
 
 interface WithRemoteStateCacheOptions {
   /**
@@ -337,11 +337,7 @@ export const createRemoteStateCacheContext = <
    * note
    * - it's important to invalidate _before_ a mutation begins, because if the runtime is terminated part way through the mutation, onOutput will never be called
    */
-  const onMutationInput = async <
-    LI extends any,
-    LO extends any,
-    M extends (...args: any) => any,
-  >({
+  const onMutationInput = async <LI, LO, M extends (...args: any) => any>({
     mutationName,
     mutationInput,
     mutationOutput,
@@ -362,11 +358,7 @@ export const createRemoteStateCacheContext = <
   /**
    * define a method which is able to kick off all registered query invalidations and query updates, on the execution of a mutation
    */
-  const onMutationOutput = async <
-    LI extends any,
-    LO extends any,
-    M extends (...args: any) => any,
-  >({
+  const onMutationOutput = async <LI, LO, M extends (...args: any) => any>({
     mutationName,
     mutationInput,
     mutationOutput,

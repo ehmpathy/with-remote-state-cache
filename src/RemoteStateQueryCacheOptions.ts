@@ -1,6 +1,6 @@
-import { WithSimpleCacheOptions } from 'with-simple-cache';
+import type { WithSimpleCacheOptions } from 'with-simple-cache';
 
-import { MutationWithRemoteStateRegistration } from './createRemoteStateCacheContext';
+import type { MutationWithRemoteStateRegistration } from './createRemoteStateCacheContext';
 
 export enum MutationExecutionStatus {
   /**

@@ -2,4 +2,4 @@ export {
   createRemoteStateCacheContext,
   RemoteStateOperation,
 } from './createRemoteStateCacheContext';
-export { RemoteStateCache } from './RemoteStateCache';
+export type { RemoteStateCache } from './RemoteStateCache';

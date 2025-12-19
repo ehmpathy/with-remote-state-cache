@@ -1,7 +1,7 @@
-import { LogicWithExtendableCacheAsync } from 'with-simple-cache';
+import type { LogicWithExtendableCacheAsync } from 'with-simple-cache';
 
-import { RemoteStateCache } from '.';
-import { WithRemoteStateQueryCacheOptions } from './RemoteStateQueryCacheOptions';
+import type { RemoteStateCache } from '.';
+import type { WithRemoteStateQueryCacheOptions } from './RemoteStateQueryCacheOptions';
 
 /**
  * tracks all of the info required for managing the remote-state cache for a query
