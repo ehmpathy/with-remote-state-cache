@@ -1,4 +1,4 @@
-import { SimpleAsyncCache } from 'with-simple-cache';
+import type { SimpleAsyncCache } from 'with-simple-cache';
 
 /**
  * any simple-cache can be used as a remote-state-cache as long as it also implements a `keys` method which returns all of the currently valid keys for the cache

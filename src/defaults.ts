@@ -1,10 +1,10 @@
 import shajs from 'sha.js';
-import {
+import type {
   KeySerializationMethod,
   WithSimpleCacheAsyncOptions,
 } from 'with-simple-cache';
 
-import { RemoteStateCache } from '.';
+import type { RemoteStateCache } from '.';
 
 export const defaultKeySerializationMethod: KeySerializationMethod<any> = (
   input,
@@ -21,7 +21,9 @@ export const defaultKeySerializationMethod: KeySerializationMethod<any> = (
       .replace(/_$/, ''), // stringify + replace all non-alphanumeric input
 
     // add a unique token, from the hashed inputs
-    shajs('sha256').update(JSON.stringify(input)).digest('hex'),
+    shajs('sha256')
+      .update(JSON.stringify(input))
+      .digest('hex'),
   ].join('.');
 
 export const defaultValueSerializationMethod: Required<

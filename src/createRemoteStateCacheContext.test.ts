@@ -1,12 +1,12 @@
 import { promises as fs } from 'fs';
 import { createCache as createOnDiskCache } from 'simple-on-disk-cache';
-import { HasMetadata } from 'type-fns';
+import type { HasMetadata } from 'type-fns';
 import uuid from 'uuid';
-import { SimpleCache } from 'with-simple-cache';
+import type { SimpleCache } from 'with-simple-cache';
 
-import { RemoteStateCache } from './RemoteStateCache';
 import { createRemoteStateCacheContext } from './createRemoteStateCacheContext';
 import { defaultKeySerializationMethod } from './defaults';
+import type { RemoteStateCache } from './RemoteStateCache';
 
 /**
  * a recipe
@@ -19,7 +19,7 @@ type Recipe = {
   steps: string[];
 };
 
-const cacheDir = `${__dirname}/__test_assets__/__tmp__`;
+const cacheDir = `${__dirname}/.test.assets/__tmp__`;
 const createCache = () =>
   createOnDiskCache({
     directory: {
