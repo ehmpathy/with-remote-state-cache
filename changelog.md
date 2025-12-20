@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.3.11](https://github.com/ehmpathy/with-remote-state-cache/compare/v1.3.10...v1.3.11) (2025-12-20)
+
+
+### Bug Fixes
+
+* **pkg:** revive the name cutover ([#21](https://github.com/ehmpathy/with-remote-state-cache/issues/21)) ([c19114f](https://github.com/ehmpathy/with-remote-state-cache/commit/c19114f2889f0aaf104370f97f3b654e827de53f))
+
 ## [1.3.10](https://github.com/ehmpathy/with-remote-state-cache/compare/v1.3.9...v1.3.10) (2025-12-19)
 
 

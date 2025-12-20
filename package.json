@@ -2,7 +2,7 @@
   "name": "with-remote-state-cache",
   "author": "ehmpathy",
   "description": "A wrapper that makes it simple to add a remote state cache to any function",
-  "version": "1.3.10",
+  "version": "1.3.11",
   "license": "MIT",
   "repository": "ehmpathy/with-remote-state-cache",
   "homepage": "https://github.com/ehmpathy/with-remote-state-cache",
