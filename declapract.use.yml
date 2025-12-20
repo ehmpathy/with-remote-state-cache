@@ -2,4 +2,4 @@ declarations: npm:declapract-typescript-ehmpathy
 useCase: npm-package
 variables:
   organizationName: ehmpathy
-  projectName: with-remote-state-caching
+  projectName: with-remote-state-cache
